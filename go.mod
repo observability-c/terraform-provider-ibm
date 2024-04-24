@@ -47,6 +47,7 @@ require (
 	github.com/jinzhu/copier v0.3.2
 	github.com/minsikl/netscaler-nitro-go v0.0.0-20170827154432-5b14ce3643e3
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/observability-c/dragonlog-logs-go-sdk v0.1.1
 	github.com/openshift/api v0.0.0-20230329202819-04d4fb776982
 	github.com/openshift/client-go v0.0.0-20230324103026-3f1513df25e0
 	github.com/pkg/errors v0.9.1
@@ -65,7 +66,6 @@ require (
 	github.com/IBM/go-sdk-core v1.1.0
 	github.com/IBM/mqcloud-go-sdk v0.0.4
 	github.com/IBM/sarama v1.41.2
-	github.com/observability-c/dragonlog-logs-go-sdk v0.1.0
 	github.com/stretchr/testify v1.9.0
 	k8s.io/utils v0.0.0-20230313181309-38a27ef9d749
 	sigs.k8s.io/controller-runtime v0.14.1

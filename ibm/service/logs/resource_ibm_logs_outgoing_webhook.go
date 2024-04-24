@@ -183,7 +183,7 @@ func resourceIbmLogsOutgoingWebhookRead(context context.Context, d *schema.Resou
 	}
 	getOutgoingWebhookOptions := &logsv0.GetOutgoingWebhookOptions{}
 
-	getOutgoingWebhookOptions.SetID(webhookId)
+	getOutgoingWebhookOptions.SetID(core.UUIDPtr(strfmt.UUID(webhookId)))
 
 	outgoingWebhookIntf, response, err := logsClient.GetOutgoingWebhookWithContext(context, getOutgoingWebhookOptions)
 	if err != nil {
@@ -253,7 +253,7 @@ func resourceIbmLogsOutgoingWebhookUpdate(context context.Context, d *schema.Res
 
 	updateOutgoingWebhookOptions := &logsv0.UpdateOutgoingWebhookOptions{}
 
-	updateOutgoingWebhookOptions.SetID(webhookId)
+	updateOutgoingWebhookOptions.SetID(core.UUIDPtr(strfmt.UUID(webhookId)))
 
 	hasChange := false
 
@@ -310,7 +310,7 @@ func resourceIbmLogsOutgoingWebhookDelete(context context.Context, d *schema.Res
 
 	deleteOutgoingWebhookOptions := &logsv0.DeleteOutgoingWebhookOptions{}
 
-	deleteOutgoingWebhookOptions.SetID(webhookId)
+	deleteOutgoingWebhookOptions.SetID(core.UUIDPtr(strfmt.UUID(webhookId)))
 
 	_, err = logsClient.DeleteOutgoingWebhookWithContext(context, deleteOutgoingWebhookOptions)
 	if err != nil {

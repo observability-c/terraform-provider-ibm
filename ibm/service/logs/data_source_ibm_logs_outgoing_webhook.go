@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -93,7 +95,7 @@ func dataSourceIbmLogsOutgoingWebhookRead(context context.Context, d *schema.Res
 
 	getOutgoingWebhookOptions := &logsv0.GetOutgoingWebhookOptions{}
 
-	getOutgoingWebhookOptions.SetID(d.Get("logs_outgoing_webhook_id").(string))
+	getOutgoingWebhookOptions.SetID(core.UUIDPtr(strfmt.UUID(d.Get("logs_outgoing_webhook_id").(string))))
 
 	outgoingWebhookIntf, _, err := logsClient.GetOutgoingWebhookWithContext(context, getOutgoingWebhookOptions)
 	if err != nil {
