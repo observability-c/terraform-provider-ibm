@@ -15,11 +15,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/logs"
 	. "github.com/IBM-Cloud/terraform-provider-ibm/ibm/unittest"
-	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/IBM/logs-go-sdk/logsv0"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAccIbmLogsDataAccessRulesDataSourceBasic(t *testing.T) {
