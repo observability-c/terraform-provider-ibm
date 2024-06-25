@@ -3,7 +3,7 @@ layout: "ibm"
 page_title: "IBM : ibm_logs_data_access_rules"
 description: |-
   Get information about logs_data_access_rules
-subcategory: "Cloud Logs API"
+subcategory: "Cloud Logs"
 ---
 
 # ibm_logs_data_access_rules

@@ -13,6 +13,7 @@ import (
 
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/logs"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/logs-go-sdk/logsv0"
@@ -27,7 +28,7 @@ func TestAccIbmLogsDataAccessRuleBasic(t *testing.T) {
 	defaultExpressionUpdate := fmt.Sprintf("tf_default_expression_%d", acctest.RandIntRange(10, 100))
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		PreCheck:     func() { acc.TestAccPreCheckCloudLogs(t) },
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIbmLogsDataAccessRuleDestroy,
 		Steps: []resource.TestStep{
@@ -132,10 +133,16 @@ func testAccCheckIbmLogsDataAccessRuleExists(n string, obj logsv0.DataAccessRule
 		if err != nil {
 			return err
 		}
+		logsClient = getTestClientWithLogsInstanceEndpoint(logsClient)
+
+		resourceID, err := flex.IdParts(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
 
 		listDataAccessRulesOptions := &logsv0.ListDataAccessRulesOptions{}
 
-		listDataAccessRulesOptions.SetID(rs.Primary.ID)
+		listDataAccessRulesOptions.SetID(resourceID)
 
 		dataAccessRule, _, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
 		if err != nil {
