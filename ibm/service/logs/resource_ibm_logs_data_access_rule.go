@@ -152,8 +152,8 @@ func resourceIbmLogsDataAccessRuleCreate(context context.Context, d *schema.Reso
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
-
-	d.SetId(string(*dataAccessRule.ID))
+	dataAccessRuleId := fmt.Sprintf("%s/%s/%s", region, instanceId, *dataAccessRule.ID)
+	d.SetId(dataAccessRuleId)
 
 	return resourceIbmLogsDataAccessRuleRead(context, d, meta)
 }
@@ -172,6 +172,9 @@ func resourceIbmLogsDataAccessRuleRead(context context.Context, d *schema.Resour
 	}
 
 	listDataAccessRulesOptions := &logsv0.ListDataAccessRulesOptions{}
+
+	ruleID := core.UUIDPtr(strfmt.UUID(accessRuleId))
+	listDataAccessRulesOptions.ID = []strfmt.UUID{*ruleID}
 
 	dataAccessRuleCollection, response, err := logsClient.ListDataAccessRulesWithContext(context, listDataAccessRulesOptions)
 	if err != nil {
@@ -194,40 +197,35 @@ func resourceIbmLogsDataAccessRuleRead(context context.Context, d *schema.Resour
 		return diag.FromErr(fmt.Errorf("Error setting region: %s", err))
 	}
 
-	if dataAccessRuleCollection != nil && len(dataAccessRuleCollection.DataAccessRules) > 0 {
+	if dataAccessRuleCollection != nil && len(dataAccessRuleCollection.DataAccessRules) > 0 && &dataAccessRuleCollection.DataAccessRules[0] != nil {
 
-		for _, dataAccessRule := range dataAccessRuleCollection.DataAccessRules {
+		dataAccessRule := dataAccessRuleCollection.DataAccessRules[0]
 
-			if fmt.Sprintf("%s", dataAccessRule.ID) == accessRuleId {
-
-				if err = d.Set("display_name", dataAccessRule.DisplayName); err != nil {
-					err = fmt.Errorf("Error setting display_name: %s", err)
-					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-display_name").GetDiag()
-				}
-				if !core.IsNil(dataAccessRule.Description) {
-					if err = d.Set("description", dataAccessRule.Description); err != nil {
-						err = fmt.Errorf("Error setting description: %s", err)
-						return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-description").GetDiag()
-					}
-				}
-				filters := []map[string]interface{}{}
-				for _, filtersItem := range dataAccessRule.Filters {
-					filtersItemMap, err := ResourceIbmLogsDataAccessRuleDataAccessRuleFilterToMap(&filtersItem)
-					if err != nil {
-						return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "filters-to-map").GetDiag()
-					}
-					filters = append(filters, filtersItemMap)
-				}
-				if err = d.Set("filters", filters); err != nil {
-					err = fmt.Errorf("Error setting filters: %s", err)
-					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-filters").GetDiag()
-				}
-				if err = d.Set("default_expression", dataAccessRule.DefaultExpression); err != nil {
-					err = fmt.Errorf("Error setting default_expression: %s", err)
-					return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-default_expression").GetDiag()
-				}
-
+		if err = d.Set("display_name", dataAccessRule.DisplayName); err != nil {
+			err = fmt.Errorf("Error setting display_name: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-display_name").GetDiag()
+		}
+		if !core.IsNil(dataAccessRule.Description) {
+			if err = d.Set("description", dataAccessRule.Description); err != nil {
+				err = fmt.Errorf("Error setting description: %s", err)
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-description").GetDiag()
 			}
+		}
+		filters := []map[string]interface{}{}
+		for _, filtersItem := range dataAccessRule.Filters {
+			filtersItemMap, err := ResourceIbmLogsDataAccessRuleDataAccessRuleFilterToMap(&filtersItem)
+			if err != nil {
+				return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "filters-to-map").GetDiag()
+			}
+			filters = append(filters, filtersItemMap)
+		}
+		if err = d.Set("filters", filters); err != nil {
+			err = fmt.Errorf("Error setting filters: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-filters").GetDiag()
+		}
+		if err = d.Set("default_expression", dataAccessRule.DefaultExpression); err != nil {
+			err = fmt.Errorf("Error setting default_expression: %s", err)
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_data_access_rule", "read", "set-default_expression").GetDiag()
 		}
 	}
 
@@ -253,7 +251,11 @@ func resourceIbmLogsDataAccessRuleUpdate(context context.Context, d *schema.Reso
 
 	hasChange := false
 
-	if d.HasChange("display_name") || d.HasChange("filters") || d.HasChange("default_expression") {
+	if d.HasChange("display_name") ||
+		d.HasChange("filters") ||
+		d.HasChange("default_expression") ||
+		d.HasChange("description") {
+
 		updateDataAccessRuleOptions.SetDisplayName(d.Get("display_name").(string))
 		var filters []logsv0.DataAccessRuleFilter
 		for _, v := range d.Get("filters").([]interface{}) {
@@ -266,9 +268,7 @@ func resourceIbmLogsDataAccessRuleUpdate(context context.Context, d *schema.Reso
 		}
 		updateDataAccessRuleOptions.SetFilters(filters)
 		updateDataAccessRuleOptions.SetDefaultExpression(d.Get("default_expression").(string))
-		hasChange = true
-	}
-	if d.HasChange("description") {
+
 		updateDataAccessRuleOptions.SetDescription(d.Get("description").(string))
 		hasChange = true
 	}
@@ -299,7 +299,6 @@ func resourceIbmLogsDataAccessRuleDelete(context context.Context, d *schema.Reso
 	}
 
 	deleteDataAccessRuleOptions := &logsv0.DeleteDataAccessRuleOptions{}
-
 	deleteDataAccessRuleOptions.SetID(core.UUIDPtr(strfmt.UUID(accessRuleId)))
 
 	_, err = logsClient.DeleteDataAccessRuleWithContext(context, deleteDataAccessRuleOptions)

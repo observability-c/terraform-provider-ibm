@@ -13,15 +13,20 @@ Provides a read-only data source to retrieve information about logs_data_access_
 ## Example Usage
 
 ```hcl
-data "ibm_logs_data_access_rules" "logs_data_access_rules" {
-	logs_data_access_rules_id = ["4f966911-4bda-407e-b069-477394effa59"]
+data "ibm_logs_data_access_rules" "logs_data_access_rules_instance" {
+  instance_id               = "9d392fb2-b01b-40d5-9aec-fe21d02ab6ed"
+  region                    = "eu-de"
+  logs_data_access_rules_id = [ibm_logs_data_access_rule.logs_data_access_rule_instance.access_rule_id]
 }
+
 ```
 
 ## Argument Reference
 
 You can specify the following arguments for this data source.
 
+* `instance_id` - (Required, String)  Cloud Logs Instance GUID.
+* `region` - (Optional, String) Cloud Logs Instance Region.
 * `logs_data_access_rules_id` - (Optional, List) Array of data access rule IDs.
   * Constraints: The list items must match regular expression `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/`. The maximum length is `4096` items. The minimum length is `0` items.
 

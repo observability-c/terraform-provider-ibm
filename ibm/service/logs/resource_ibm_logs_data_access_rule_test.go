@@ -22,9 +22,9 @@ import (
 func TestAccIbmLogsDataAccessRuleBasic(t *testing.T) {
 	var conf logsv0.DataAccessRule
 	displayName := fmt.Sprintf("tf_display_name_%d", acctest.RandIntRange(10, 100))
-	defaultExpression := fmt.Sprintf("tf_default_expression_%d", acctest.RandIntRange(10, 100))
+	defaultExpression := "<v1>true"
 	displayNameUpdate := fmt.Sprintf("tf_display_name_%d", acctest.RandIntRange(10, 100))
-	defaultExpressionUpdate := fmt.Sprintf("tf_default_expression_%d", acctest.RandIntRange(10, 100))
+	defaultExpressionUpdate := "<v1>false"
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { acc.TestAccPreCheckCloudLogs(t) },
@@ -54,13 +54,13 @@ func TestAccIbmLogsDataAccessRuleAllArgs(t *testing.T) {
 	var conf logsv0.DataAccessRule
 	displayName := fmt.Sprintf("tf_display_name_%d", acctest.RandIntRange(10, 100))
 	description := fmt.Sprintf("tf_description_%d", acctest.RandIntRange(10, 100))
-	defaultExpression := fmt.Sprintf("tf_default_expression_%d", acctest.RandIntRange(10, 100))
+	defaultExpression := "<v1>true"
 	displayNameUpdate := fmt.Sprintf("tf_display_name_%d", acctest.RandIntRange(10, 100))
 	descriptionUpdate := fmt.Sprintf("tf_description_%d", acctest.RandIntRange(10, 100))
-	defaultExpressionUpdate := fmt.Sprintf("tf_default_expression_%d", acctest.RandIntRange(10, 100))
+	defaultExpressionUpdate := "<v1>false"
 
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { acc.TestAccPreCheck(t) },
+		PreCheck:     func() { acc.TestAccPreCheckCloudLogs(t) },
 		Providers:    acc.TestAccProviders,
 		CheckDestroy: testAccCheckIbmLogsDataAccessRuleDestroy,
 		Steps: []resource.TestStep{
@@ -82,7 +82,7 @@ func TestAccIbmLogsDataAccessRuleAllArgs(t *testing.T) {
 				),
 			},
 			resource.TestStep{
-				ResourceName:      "ibm_logs_data_access_rule.logs_data_access_rule",
+				ResourceName:      "ibm_logs_data_access_rule.logs_data_access_rule_instance",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},
@@ -93,31 +93,33 @@ func TestAccIbmLogsDataAccessRuleAllArgs(t *testing.T) {
 func testAccCheckIbmLogsDataAccessRuleConfigBasic(displayName string, defaultExpression string) string {
 	return fmt.Sprintf(`
 		resource "ibm_logs_data_access_rule" "logs_data_access_rule_instance" {
+			instance_id  = "%s"
+			region       = "%s"
 			display_name = "%s"
 			filters {
 				entity_type = "logs"
-				expression = "true"
+				expression  = "<v1> foo == 'bar'"
 			}
 			default_expression = "%s"
 		}
-	`, displayName, defaultExpression)
+	`, acc.LogsInstanceId, acc.LogsInstanceRegion, displayName, defaultExpression)
 }
 
 func testAccCheckIbmLogsDataAccessRuleConfig(displayName string, description string, defaultExpression string) string {
 	return fmt.Sprintf(`
 
 		resource "ibm_logs_data_access_rule" "logs_data_access_rule_instance" {
+			instance_id  = "%s"
+			region       = "%s"
 			display_name = "%s"
-			description = "%s"
+			description  = "%s"
 			filters {
 				entity_type = "logs"
-				expression = "true"
+				expression  = "<v1> foo == 'bar'"
 			}
 			default_expression = "%s"
-			instance_id = "%s"
-			region      = "%s"
 		}
-	`, displayName, description, defaultExpression, acc.LogsInstanceId, acc.LogsInstanceRegion)
+	`, acc.LogsInstanceId, acc.LogsInstanceRegion, displayName, description, defaultExpression)
 }
 
 func testAccCheckIbmLogsDataAccessRuleExists(n string, obj logsv0.DataAccessRule) resource.TestCheckFunc {
@@ -127,6 +129,10 @@ func testAccCheckIbmLogsDataAccessRuleExists(n string, obj logsv0.DataAccessRule
 		if !ok {
 			return fmt.Errorf("Not found: %s", n)
 		}
+		resourceID, err := flex.IdParts(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
 
 		logsClient, err := acc.TestAccProvider.Meta().(conns.ClientSession).LogsV0()
 		if err != nil {
@@ -134,23 +140,18 @@ func testAccCheckIbmLogsDataAccessRuleExists(n string, obj logsv0.DataAccessRule
 		}
 		logsClient = getTestClientWithLogsInstanceEndpoint(logsClient)
 
-		resourceID, err := flex.IdParts(rs.Primary.ID)
-		if err != nil {
-			return err
-		}
-
 		listDataAccessRulesOptions := &logsv0.ListDataAccessRulesOptions{}
+		accessRuleID := core.UUIDPtr(strfmt.UUID(resourceID[2]))
 
-		dataAccessRules, _, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
+		listDataAccessRulesOptions.ID = []strfmt.UUID{*accessRuleID}
+		dataAccessRuleCollection, _, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
 		if err != nil {
 			return err
 		}
-
-		for _, rule := range dataAccessRules.DataAccessRules {
-			if rule.ID == core.UUIDPtr(strfmt.UUID(resourceID[2])) {
-				obj = rule
-				return nil
-			}
+		if dataAccessRuleCollection != nil && len(dataAccessRuleCollection.DataAccessRules) > 0 && &dataAccessRuleCollection.DataAccessRules[0] != nil && dataAccessRuleCollection.DataAccessRules[0].ID == accessRuleID {
+			dataAccessRule := dataAccessRuleCollection.DataAccessRules[0]
+			obj = dataAccessRule
+			return nil
 		}
 
 		return nil
@@ -162,24 +163,26 @@ func testAccCheckIbmLogsDataAccessRuleDestroy(s *terraform.State) error {
 	if err != nil {
 		return err
 	}
+	logsClient = getTestClientWithLogsInstanceEndpoint(logsClient)
+
 	for _, rs := range s.RootModule().Resources {
 		if rs.Type != "ibm_logs_data_access_rule" {
 			continue
 		}
-
 		resourceID, err := flex.IdParts(rs.Primary.ID)
 		if err != nil {
 			return err
 		}
+
 		listDataAccessRulesOptions := &logsv0.ListDataAccessRulesOptions{}
+		accessRuleID := core.UUIDPtr(strfmt.UUID(resourceID[2]))
 
-		// Try to find the key
-		dataAccessRules, _, _ := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
+		listDataAccessRulesOptions.ID = []strfmt.UUID{*accessRuleID}
 
-		for _, rule := range dataAccessRules.DataAccessRules {
-			if rule.ID == core.UUIDPtr(strfmt.UUID(resourceID[2])) {
-				return fmt.Errorf("logs_dashboard_folder still exists: %s", rs.Primary.ID)
-			}
+		dataAccessRuleCollection, _, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
+
+		if dataAccessRuleCollection != nil && len(dataAccessRuleCollection.DataAccessRules) > 0 && &dataAccessRuleCollection.DataAccessRules[0] != nil && dataAccessRuleCollection.DataAccessRules[0].ID == accessRuleID {
+			return fmt.Errorf("logs_data_access_rule still exists: %s", rs.Primary.ID)
 		}
 	}
 

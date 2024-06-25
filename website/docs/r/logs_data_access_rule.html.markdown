@@ -14,13 +14,15 @@ Create, update, and delete logs_data_access_rules with this resource.
 
 ```hcl
 resource "ibm_logs_data_access_rule" "logs_data_access_rule_instance" {
-  default_expression = "<v1> foo == 'bar'"
-  description = "Data Access Rule intended for testing"
+  instance_id  = "9d392fb2-b01b-40d5-9aec-fe21d02ab6ed"
+  region       = "eu-de"
   display_name = "Test Data Access Rule"
+  description  = "Data Access Rule intended for testing"
   filters {
-		entity_type = "logs"
-		expression = "true"
+    entity_type = "logs"
+    expression  = "<v1> foo == 'bar'"
   }
+  default_expression = "<v1>true"
 }
 ```
 
