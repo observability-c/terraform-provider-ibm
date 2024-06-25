@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -14,10 +15,8 @@ import (
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/logs"
 	"github.com/IBM/go-sdk-core/v5/core"
 	"github.com/IBM/logs-go-sdk/logsv0"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestAccIbmLogsDataAccessRuleBasic(t *testing.T) {
@@ -142,14 +141,18 @@ func testAccCheckIbmLogsDataAccessRuleExists(n string, obj logsv0.DataAccessRule
 
 		listDataAccessRulesOptions := &logsv0.ListDataAccessRulesOptions{}
 
-		listDataAccessRulesOptions.SetID(resourceID)
-
-		dataAccessRule, _, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
+		dataAccessRules, _, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
 		if err != nil {
 			return err
 		}
 
-		obj = *dataAccessRule
+		for _, rule := range dataAccessRules.DataAccessRules {
+			if rule.ID == core.UUIDPtr(strfmt.UUID(resourceID[2])) {
+				obj = rule
+				return nil
+			}
+		}
+
 		return nil
 	}
 }
@@ -164,17 +167,19 @@ func testAccCheckIbmLogsDataAccessRuleDestroy(s *terraform.State) error {
 			continue
 		}
 
+		resourceID, err := flex.IdParts(rs.Primary.ID)
+		if err != nil {
+			return err
+		}
 		listDataAccessRulesOptions := &logsv0.ListDataAccessRulesOptions{}
 
-		listDataAccessRulesOptions.SetID(rs.Primary.ID)
-
 		// Try to find the key
-		_, response, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
+		dataAccessRules, _, _ := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
 
-		if err == nil {
-			return fmt.Errorf("logs_data_access_rule still exists: %s", rs.Primary.ID)
-		} else if response.StatusCode != 404 {
-			return fmt.Errorf("Error checking for logs_data_access_rule (%s) has been destroyed: %s", rs.Primary.ID, err)
+		for _, rule := range dataAccessRules.DataAccessRules {
+			if rule.ID == core.UUIDPtr(strfmt.UUID(resourceID[2])) {
+				return fmt.Errorf("logs_dashboard_folder still exists: %s", rs.Primary.ID)
+			}
 		}
 	}
 

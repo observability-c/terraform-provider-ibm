@@ -248,7 +248,7 @@ func resourceIbmLogsDataAccessRuleUpdate(context context.Context, d *schema.Reso
 
 	updateDataAccessRuleOptions := &logsv0.UpdateDataAccessRuleOptions{}
 
-	updateDataAccessRuleOptions.SetID(&accessRuleId)
+	updateDataAccessRuleOptions.SetID(core.UUIDPtr(strfmt.UUID(accessRuleId)))
 
 	hasChange := false
 
@@ -299,8 +299,7 @@ func resourceIbmLogsDataAccessRuleDelete(context context.Context, d *schema.Reso
 
 	deleteDataAccessRuleOptions := &logsv0.DeleteDataAccessRuleOptions{}
 
-	id := strfmt.UUID(accessRuleId)
-	deleteDataAccessRuleOptions.SetID(&id)
+	deleteDataAccessRuleOptions.SetID(core.UUIDPtr(strfmt.UUID(accessRuleId)))
 
 	_, err = logsClient.DeleteDataAccessRuleWithContext(context, deleteDataAccessRuleOptions)
 	if err != nil {
