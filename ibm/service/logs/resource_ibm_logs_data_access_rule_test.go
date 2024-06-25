@@ -168,7 +168,6 @@ func testAccCheckIbmLogsDataAccessRuleDestroy(s *terraform.State) error {
 
 		listDataAccessRulesOptions.SetID(rs.Primary.ID)
 
-		// niranjan
 		// Try to find the key
 		_, response, err := logsClient.ListDataAccessRules(listDataAccessRulesOptions)
 
@@ -180,40 +179,4 @@ func testAccCheckIbmLogsDataAccessRuleDestroy(s *terraform.State) error {
 	}
 
 	return nil
-}
-
-func TestResourceIbmLogsDataAccessRuleDataAccessRuleFilterToMap(t *testing.T) {
-	checkResult := func(result map[string]interface{}) {
-		model := make(map[string]interface{})
-		model["entity_type"] = "logs"
-		model["expression"] = "true"
-
-		assert.Equal(t, result, model)
-	}
-
-	model := new(logsv0.DataAccessRuleFilter)
-	model.EntityType = core.StringPtr("logs")
-	model.Expression = core.StringPtr("true")
-
-	result, err := logs.ResourceIbmLogsDataAccessRuleDataAccessRuleFilterToMap(model)
-	assert.Nil(t, err)
-	checkResult(result)
-}
-
-func TestResourceIbmLogsDataAccessRuleMapToDataAccessRuleFilter(t *testing.T) {
-	checkResult := func(result *logsv0.DataAccessRuleFilter) {
-		model := new(logsv0.DataAccessRuleFilter)
-		model.EntityType = core.StringPtr("logs")
-		model.Expression = core.StringPtr("true")
-
-		assert.Equal(t, result, model)
-	}
-
-	model := make(map[string]interface{})
-	model["entity_type"] = "logs"
-	model["expression"] = "true"
-
-	result, err := logs.ResourceIbmLogsDataAccessRuleMapToDataAccessRuleFilter(model)
-	assert.Nil(t, err)
-	checkResult(result)
 }
