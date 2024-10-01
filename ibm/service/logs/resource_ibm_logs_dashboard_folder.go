@@ -56,7 +56,7 @@ func ResourceIbmLogsDashboardFolderValidator() *validate.ResourceValidator {
 			ValidateFunctionIdentifier: validate.ValidateRegexpLen,
 			Type:                       validate.TypeString,
 			Required:                   true,
-			Regexp:                     `^[A-Za-z0-9_\.,\-"{}()\[\]=!:#\/$|' ]+$`,
+			Regexp:                     `^[a-zA-ZÀ-ÖØ-öø-ÿĀ-ſΑ-ωА-я一-龥ぁ-ゔァ-ヴー々〆〤0-9_\.,\-"{}()\[\]=!:#/$|' ]+$`,
 			MinValueLength:             1,
 			MaxValueLength:             4096,
 		},
