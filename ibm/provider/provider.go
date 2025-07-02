@@ -1055,6 +1055,8 @@ func Provider() *schema.Provider {
 			// Logs Service
 			"ibm_logs_alert":              logs.AddLogsInstanceFields(logs.DataSourceIbmLogsAlert()),
 			"ibm_logs_alerts":             logs.AddLogsInstanceFields(logs.DataSourceIbmLogsAlerts()),
+			"ibm_logs_alert_definition":   logs.AddLogsInstanceFields(logs.DataSourceIbmLogsAlertDefinition()),
+			"ibm_logs_alert_definitions":  logs.AddLogsInstanceFields(logs.DataSourceIbmLogsAlertDefinitions()),
 			"ibm_logs_rule_group":         logs.AddLogsInstanceFields(logs.DataSourceIbmLogsRuleGroup()),
 			"ibm_logs_rule_groups":        logs.AddLogsInstanceFields(logs.DataSourceIbmLogsRuleGroups()),
 			"ibm_logs_policy":             logs.AddLogsInstanceFields(logs.DataSourceIbmLogsPolicy()),
@@ -1722,6 +1724,7 @@ func Provider() *schema.Provider {
 			"ibm_vmaas_vdc": vmware.ResourceIbmVmaasVdc(),
 			// Logs Service
 			"ibm_logs_alert":              logs.AddLogsInstanceFields(logs.ResourceIbmLogsAlert()),
+			"ibm_logs_alert_definition":   logs.AddLogsInstanceFields(logs.ResourceIbmLogsAlertDefinition()),
 			"ibm_logs_rule_group":         logs.AddLogsInstanceFields(logs.ResourceIbmLogsRuleGroup()),
 			"ibm_logs_policy":             logs.AddLogsInstanceFields(logs.ResourceIbmLogsPolicy()),
 			"ibm_logs_dashboard":          logs.AddLogsInstanceFields(logs.ResourceIbmLogsDashboard()),
@@ -2226,6 +2229,7 @@ func Validator() validate.ValidatorDict {
 				// Added for VMware as a Service
 				"ibm_vmaas_vdc":             vmware.ResourceIbmVmaasVdcValidator(),
 				"ibm_logs_alert":            logs.ResourceIbmLogsAlertValidator(),
+				"ibm_logs_alert_definition": logs.ResourceIbmLogsAlertDefinitionValidator(),
 				"ibm_logs_rule_group":       logs.ResourceIbmLogsRuleGroupValidator(),
 				"ibm_logs_outgoing_webhook": logs.ResourceIbmLogsOutgoingWebhookValidator(),
 				"ibm_logs_policy":           logs.ResourceIbmLogsPolicyValidator(),
