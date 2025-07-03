@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.104.0-b4a47c49-20250418-184351
-*/
+ */
 
 package logs_test
 
@@ -14,12 +14,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
 
-	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/logs"
-	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/observability-c/dragonlog-logs-go-sdk/logsv0"
-	"github.com/stretchr/testify/assert"
-	. "github.com/IBM-Cloud/terraform-provider-ibm/ibm/unittest"
 	acc "github.com/IBM-Cloud/terraform-provider-ibm/ibm/acctest"
+	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/service/logs"
+	. "github.com/IBM-Cloud/terraform-provider-ibm/ibm/unittest"
+	"github.com/IBM/go-sdk-core/v5/core"
+	"github.com/IBM/logs-go-sdk/logsv0"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestAccIbmLogsAlertDefinitionDataSourceBasic(t *testing.T) {
@@ -147,7 +147,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 			logs_immediate {
 				logs_filter {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -166,7 +166,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 			logs_threshold {
 				logs_filter {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -202,7 +202,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 			logs_ratio_threshold {
 				numerator {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -219,7 +219,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 				numerator_alias = "numerator_alias"
 				denominator {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -258,7 +258,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 			logs_time_relative_threshold {
 				logs_filter {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -336,7 +336,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 			logs_anomaly {
 				logs_filter {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -388,7 +388,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 			logs_new_value {
 				logs_filter {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -415,7 +415,7 @@ func testAccCheckIbmLogsAlertDefinitionDataSourceConfig(alertDefinitionName stri
 			logs_unique_count {
 				logs_filter {
 					simple_filter {
-						lucene_query = "text:"error""
+						lucene_query = "text:\"error\""
 						label_filters {
 							application_name {
 								value = "my-app"
@@ -617,7 +617,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsImmediateTypeToM
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		apisAlertDefinitionLogsFilterModel := make(map[string]interface{})
@@ -640,7 +640,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsImmediateTypeToM
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	apisAlertDefinitionLogsFilterModel := new(logsv0.ApisAlertDefinitionLogsFilter)
@@ -667,7 +667,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsFilterToMap(t *t
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		model := make(map[string]interface{})
@@ -686,7 +686,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsFilterToMap(t *t
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	model := new(logsv0.ApisAlertDefinitionLogsFilter)
@@ -709,7 +709,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsSimpleFilterToMa
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		model := make(map[string]interface{})
-		model["lucene_query"] = "text:"error""
+		model["lucene_query"] = "text:\"error\""
 		model["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		assert.Equal(t, result, model)
@@ -725,7 +725,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsSimpleFilterToMa
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	model := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	model.LuceneQuery = core.StringPtr("text:"error"")
+	model.LuceneQuery = core.StringPtr("text:\"error\"")
 	model.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	result, err := logs.DataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsSimpleFilterToMap(model)
@@ -791,7 +791,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsThresholdTypeToM
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		apisAlertDefinitionLogsFilterModel := make(map[string]interface{})
@@ -836,7 +836,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsThresholdTypeToM
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	apisAlertDefinitionLogsFilterModel := new(logsv0.ApisAlertDefinitionLogsFilter)
@@ -1001,7 +1001,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsRatioThresholdTy
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		apisAlertDefinitionLogsFilterModel := make(map[string]interface{})
@@ -1051,7 +1051,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsRatioThresholdTy
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	apisAlertDefinitionLogsFilterModel := new(logsv0.ApisAlertDefinitionLogsFilter)
@@ -1187,7 +1187,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsTimeRelativeThre
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		apisAlertDefinitionLogsFilterModel := make(map[string]interface{})
@@ -1230,7 +1230,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsTimeRelativeThre
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	apisAlertDefinitionLogsFilterModel := new(logsv0.ApisAlertDefinitionLogsFilter)
@@ -1769,7 +1769,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsAnomalyTypeToMap
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		apisAlertDefinitionLogsFilterModel := make(map[string]interface{})
@@ -1809,7 +1809,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsAnomalyTypeToMap
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	apisAlertDefinitionLogsFilterModel := new(logsv0.ApisAlertDefinitionLogsFilter)
@@ -2053,7 +2053,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsNewValueTypeToMa
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		apisAlertDefinitionLogsFilterModel := make(map[string]interface{})
@@ -2087,7 +2087,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsNewValueTypeToMa
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	apisAlertDefinitionLogsFilterModel := new(logsv0.ApisAlertDefinitionLogsFilter)
@@ -2195,7 +2195,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsUniqueCountTypeT
 		apisAlertDefinitionLabelFiltersModel["severities"] = []string{"critical"}
 
 		apisAlertDefinitionLogsSimpleFilterModel := make(map[string]interface{})
-		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:"error""
+		apisAlertDefinitionLogsSimpleFilterModel["lucene_query"] = "text:\"error\""
 		apisAlertDefinitionLogsSimpleFilterModel["label_filters"] = []map[string]interface{}{apisAlertDefinitionLabelFiltersModel}
 
 		apisAlertDefinitionLogsFilterModel := make(map[string]interface{})
@@ -2231,7 +2231,7 @@ func TestDataSourceIbmLogsAlertDefinitionApisAlertDefinitionLogsUniqueCountTypeT
 	apisAlertDefinitionLabelFiltersModel.Severities = []string{"critical"}
 
 	apisAlertDefinitionLogsSimpleFilterModel := new(logsv0.ApisAlertDefinitionLogsSimpleFilter)
-	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:"error"")
+	apisAlertDefinitionLogsSimpleFilterModel.LuceneQuery = core.StringPtr("text:\"error\"")
 	apisAlertDefinitionLogsSimpleFilterModel.LabelFilters = apisAlertDefinitionLabelFiltersModel
 
 	apisAlertDefinitionLogsFilterModel := new(logsv0.ApisAlertDefinitionLogsFilter)

@@ -3,7 +3,7 @@
 
 /*
  * IBM OpenAPI Terraform Generator Version: 3.104.0-b4a47c49-20250418-184351
-*/
+ */
 
 package logs
 
@@ -12,13 +12,14 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/conns"
 	"github.com/IBM-Cloud/terraform-provider-ibm/ibm/flex"
 	"github.com/IBM/go-sdk-core/v5/core"
-	"github.com/observability-c/dragonlog-logs-go-sdk/logsv0"
+	"github.com/IBM/logs-go-sdk/logsv0"
 )
 
 func DataSourceIbmLogsAlertDefinition() *schema.Resource {
@@ -1700,7 +1701,8 @@ func dataSourceIbmLogsAlertDefinitionRead(context context.Context, d *schema.Res
 	}
 	alertDefinition := alertDefinitionIntf.(*logsv0.AlertDefinition)
 
-	d.SetId(*getAlertDefOptions.ID)
+	// d.SetId(*getAlertDefOptions.ID)
+	d.SetId(fmt.Sprintf("%s", *getAlertDefOptions.ID))
 
 	if !core.IsNil(alertDefinition.CreatedTime) {
 		if err = d.Set("created_time", flex.DateTimeToString(alertDefinition.CreatedTime)); err != nil {
