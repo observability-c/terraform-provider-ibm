@@ -3867,7 +3867,10 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionAlertDefNotificationGroupT
 
 func ResourceIbmLogsAlertDefinitionApisAlertDefinitionAlertDefWebhooksSettingsToMap(model *logsv0.ApisAlertDefinitionAlertDefWebhooksSettings) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	modelMap["notify_on"] = *model.NotifyOn
+	if model.NotifyOn != nil && *model.NotifyOn != "" {
+		// Ensure NotifyOn is not nil before dereferencing
+		modelMap["notify_on"] = *model.NotifyOn
+	}
 	integrationMap, err := ResourceIbmLogsAlertDefinitionApisAlertDefinitionIntegrationTypeToMap(model.Integration)
 	if err != nil {
 		return modelMap, err

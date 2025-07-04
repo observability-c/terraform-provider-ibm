@@ -1937,7 +1937,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionAlertDefNotificationGro
 
 func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionAlertDefWebhooksSettingsToMap(model *logsv0.ApisAlertDefinitionAlertDefWebhooksSettings) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
-	modelMap["notify_on"] = *model.NotifyOn
+	if model.NotifyOn != nil && *model.NotifyOn != "" {
+		modelMap["notify_on"] = *model.NotifyOn
+	}
 	integrationMap, err := DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionIntegrationTypeToMap(model.Integration)
 	if err != nil {
 		return modelMap, err
