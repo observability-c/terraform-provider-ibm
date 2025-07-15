@@ -1740,10 +1740,10 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 				Computed:    true,
 				Description: "The old alert ID.",
 			},
-			"alert_def_id": &schema.Schema{
+			"alert_id": &schema.Schema{
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: "Alert Definition ID.",
+				Description: "Alert ID.",
 			},
 		},
 	}
@@ -1812,9 +1812,11 @@ func resourceIbmLogsAlertDefinitionCreate(context context.Context, d *schema.Res
 	if _, ok := d.GetOk("description"); ok {
 		bodyModelMap["description"] = d.Get("description")
 	}
-	if _, ok := d.GetOk("enabled"); ok {
-		bodyModelMap["enabled"] = d.Get("enabled")
-	}
+
+	bodyModelMap["enabled"] = d.Get("enabled")
+	// if _, ok := d.GetOk("enabled"); ok {
+	// 	bodyModelMap["enabled"] = d.Get("enabled")
+	// }
 	if _, ok := d.GetOk("priority"); ok {
 		bodyModelMap["priority"] = d.Get("priority")
 	}
@@ -1896,14 +1898,14 @@ func resourceIbmLogsAlertDefinitionRead(context context.Context, d *schema.Resou
 		return tfErr.GetDiag()
 	}
 
-	logsClient, region, instanceId, alertDefID, err := updateClientURLWithInstanceEndpoint(d.Id(), meta, logsClient, d)
+	logsClient, region, instanceId, alertID, err := updateClientURLWithInstanceEndpoint(d.Id(), meta, logsClient, d)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
 	getAlertDefOptions := &logsv0.GetAlertDefOptions{}
 
-	getAlertDefOptions.SetID(core.UUIDPtr(strfmt.UUID(alertDefID)))
+	getAlertDefOptions.SetID(core.UUIDPtr(strfmt.UUID(alertID)))
 
 	alertDefinitionIntf, response, err := logsClient.GetAlertDefWithContext(context, getAlertDefOptions)
 	if err != nil {
@@ -1923,7 +1925,7 @@ func resourceIbmLogsAlertDefinitionRead(context context.Context, d *schema.Resou
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_alert_definition", "read", "set-name").GetDiag()
 	}
 
-	if err = d.Set("alert_def_id", alertDefID); err != nil {
+	if err = d.Set("alert_id", alertID); err != nil {
 		err = fmt.Errorf("Error setting alert definition ID: %s", err)
 		return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_alert_definition", "read", "set-alert-id").GetDiag()
 	}
@@ -1947,16 +1949,19 @@ func resourceIbmLogsAlertDefinitionRead(context context.Context, d *schema.Resou
 
 	if !core.IsNil(alertDefinition.Enabled) {
 		if err = d.Set("enabled", alertDefinition.Enabled); err != nil {
+			fmt.Println("what is enabled value here", alertDefinition.Enabled)
 			err = fmt.Errorf("Error setting enabled: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_alert_definition", "read", "set-enabled").GetDiag()
 		}
 	}
+
 	if !core.IsNil(alertDefinition.Priority) {
 		if err = d.Set("priority", alertDefinition.Priority); err != nil {
 			err = fmt.Errorf("Error setting priority: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_alert_definition", "read", "set-priority").GetDiag()
 		}
 	}
+
 	if !core.IsNil(alertDefinition.ActiveOn) {
 		activeOnMap, err := ResourceIbmLogsAlertDefinitionApisAlertDefinitionActivityScheduleToMap(alertDefinition.ActiveOn)
 		if err != nil {

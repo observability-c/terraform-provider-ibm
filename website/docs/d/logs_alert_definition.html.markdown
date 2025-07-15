@@ -3,7 +3,7 @@ layout: "ibm"
 page_title: "IBM : ibm_logs_alert_definition"
 description: |-
   Get information about logs_alert_definition
-subcategory: "Cloud Logs API"
+subcategory: "Cloud Logs"
 ---
 
 # ibm_logs_alert_definition
@@ -22,6 +22,8 @@ data "ibm_logs_alert_definition" "logs_alert_definition" {
 
 You can specify the following arguments for this data source.
 
+* `instance_id` - (Required, String)  Cloud Logs Instance GUID.
+* `region` - (Optional, String) Cloud Logs Instance Region.
 * `logs_alert_definition_id` - (Required, Forces new resource, String) Alert definition ID.
   * Constraints: The maximum length is `36` characters. The minimum length is `36` characters. The value must match regular expression `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/`.
 

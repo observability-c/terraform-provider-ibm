@@ -17,6 +17,12 @@ data "ibm_logs_alert_definitions" "logs_alert_definitions" {
 }
 ```
 
+## Argument Reference
+
+You can specify the following arguments for this data source.
+
+* `instance_id` - (Required, String)  Cloud Logs Instance GUID.
+* `region` - (Optional, String) Cloud Logs Instance Region.
 
 ## Attribute Reference
 

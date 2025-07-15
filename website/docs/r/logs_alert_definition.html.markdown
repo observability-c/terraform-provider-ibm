@@ -3,7 +3,7 @@ layout: "ibm"
 page_title: "IBM : ibm_logs_alert_definition"
 description: |-
   Manages logs_alert_definition.
-subcategory: "Cloud Logs API"
+subcategory: "Cloud Logs"
 ---
 
 # ibm_logs_alert_definition
@@ -350,7 +350,9 @@ resource "ibm_logs_alert_definition" "logs_alert_definition_instance" {
 ## Argument Reference
 
 You can specify the following arguments for this resource.
-
+* `instance_id` - (Required, Forces new resource, String)  Cloud Logs Instance GUID.
+* `region` - (Optional, Forces new resource, String) Cloud Logs Instance Region.
+* `endpoint_type` - (Optional, String) Cloud Logs Instance Endpoint type. Allowed values `public` and `private`.
 * `active_on` - (Optional, List) Defining when the alert is active.
 Nested schema for **active_on**:
 	* `day_of_week` - (Required, List) Days of the week when the alert is active.
