@@ -438,7 +438,7 @@ Nested schema for **logs_anomaly**:
 					  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^.*$/`.
 			* `lucene_query` - (Optional, String) The Lucene query to filter logs.
 			  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^[\\p{L}\\p{N}\\p{P}\\p{Z}\\p{S}\\p{M}]+$/`.
-	* `notification_payload_filter` - (Required, List) The notification payload filter to specify which fields to include in the notification.
+	* `notification_payload_filter` - (Optional, List) The notification payload filter to specify which fields to include in the notification.
 	  * Constraints: The list items must match regular expression `/^[a-zA-Z0-9_.]+$/`. The maximum length is `4096` items. The minimum length is `0` items.
 	* `rules` - (Required, List) The rules for the log anomaly alert.
 	  * Constraints: The maximum length is `1` item. The minimum length is `1` item.
@@ -478,7 +478,7 @@ Nested schema for **logs_immediate**:
 					  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^.*$/`.
 			* `lucene_query` - (Optional, String) The Lucene query to filter logs.
 			  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^[\\p{L}\\p{N}\\p{P}\\p{Z}\\p{S}\\p{M}]+$/`.
-	* `notification_payload_filter` - (Required, List) The filter to specify which fields to include in the notification payload.
+	* `notification_payload_filter` - (Optional, List) The filter to specify which fields to include in the notification payload.
 	  * Constraints: The list items must match regular expression `/^[a-zA-Z0-9_.]+$/`. The maximum length is `4096` items. The minimum length is `0` items.
 * `logs_new_value` - (Optional, List) Configuration for alerts triggered by new log values.
 Nested schema for **logs_new_value**:
@@ -506,7 +506,7 @@ Nested schema for **logs_new_value**:
 					  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^.*$/`.
 			* `lucene_query` - (Optional, String) The Lucene query to filter logs.
 			  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^[\\p{L}\\p{N}\\p{P}\\p{Z}\\p{S}\\p{M}]+$/`.
-	* `notification_payload_filter` - (Required, List) The filter to specify which fields to include in the notification payload.
+	* `notification_payload_filter` - (Optional, List) The filter to specify which fields to include in the notification payload.
 	  * Constraints: The list items must match regular expression `/^[a-zA-Z0-9_.]+$/`. The maximum length is `4096` items. The minimum length is `0` items.
 	* `rules` - (Required, List) The rules for the log new value alert.
 	  * Constraints: The maximum length is `1` item. The minimum length is `1` item.
@@ -552,7 +552,7 @@ Nested schema for **logs_ratio_threshold**:
 	* `group_by_for` - (Required, String) The group by settings for the numerator and denominator filters.
 	  * Constraints: Allowable values are: `both_or_unspecified`, `numerator_only`, `denumerator_only`.
 	* `ignore_infinity` - (Optional, Boolean) The configuration for ignoring infinity values in the ratio.
-	* `notification_payload_filter` - (Required, List) The filter to specify which fields to include in the notification payload.
+	* `notification_payload_filter` - (Optional, List) The filter to specify which fields to include in the notification payload.
 	  * Constraints: The list items must match regular expression `/^[a-zA-Z0-9_.]+$/`. The maximum length is `4096` items. The minimum length is `0` items.
 	* `numerator` - (Required, List) The filter to match log entries for immediate alerts.
 	Nested schema for **numerator**:
@@ -629,7 +629,7 @@ Nested schema for **logs_threshold**:
 					  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^.*$/`.
 			* `lucene_query` - (Optional, String) The Lucene query to filter logs.
 			  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^[\\p{L}\\p{N}\\p{P}\\p{Z}\\p{S}\\p{M}]+$/`.
-	* `notification_payload_filter` - (Required, List) The filter to specify which fields to include in the notification payload.
+	* `notification_payload_filter` - (Optional, List) The filter to specify which fields to include in the notification payload.
 	  * Constraints: The list items must match regular expression `/^[a-zA-Z0-9_.]+$/`. The maximum length is `4096` items. The minimum length is `0` items.
 	* `rules` - (Required, List) The rules for the threshold alert.
 	  * Constraints: The maximum length is `5` items. The minimum length is `1` item.
@@ -681,7 +681,7 @@ Nested schema for **logs_time_relative_threshold**:
 					  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^.*$/`.
 			* `lucene_query` - (Optional, String) The Lucene query to filter logs.
 			  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^[\\p{L}\\p{N}\\p{P}\\p{Z}\\p{S}\\p{M}]+$/`.
-	* `notification_payload_filter` - (Required, List) The filter to specify which fields to include in the notification payload.
+	* `notification_payload_filter` - (Optional, List) The filter to specify which fields to include in the notification payload.
 	  * Constraints: The list items must match regular expression `/^[a-zA-Z0-9_.]+$/`. The maximum length is `4096` items. The minimum length is `0` items.
 	* `rules` - (Required, List) The rules for the time-relative alert.
 	  * Constraints: The maximum length is `5` items. The minimum length is `1` item.
@@ -730,7 +730,7 @@ Nested schema for **logs_unique_count**:
 			  * Constraints: The maximum length is `4096` characters. The minimum length is `1` character. The value must match regular expression `/^[\\p{L}\\p{N}\\p{P}\\p{Z}\\p{S}\\p{M}]+$/`.
 	* `max_unique_count_per_group_by_key` - (Optional, String) The maximum unique count per group by key.
 	  * Constraints: The maximum length is `19` characters. The minimum length is `1` character. The value must match regular expression `/^-?\\d{1,19}$/`.
-	* `notification_payload_filter` - (Required, List) The filter to specify which fields to include in the notification payload.
+	* `notification_payload_filter` - (Optional, List) The filter to specify which fields to include in the notification payload.
 	  * Constraints: The list items must match regular expression `/^[a-zA-Z0-9_.]+$/`. The maximum length is `4096` items. The minimum length is `0` items.
 	* `rules` - (Required, List) The rules for the log unique count alert.
 	  * Constraints: The maximum length is `1` item. The minimum length is `1` item.
@@ -827,7 +827,7 @@ Nested schema for **notification_group**:
 			  * Constraints: The maximum value is `4294967295`. The minimum value is `0`.
 		* `minutes` - (Optional, Integer) The time in minutes before the notification is sent.
 		  * Constraints: The maximum value is `4294967295`. The minimum value is `0`.
-		* `notify_on` - (Required, String) The condition to notify about the alert.
+		* `notify_on` - (Optional, String) The condition to notify about the alert.
 		  * Constraints: Allowable values are: `triggered_only_unspecified`, `triggered_and_resolved`.
 * `phantom_mode` - (Optional, Boolean) Whether the alert is in phantom mode (creating incidents or not).
 * `priority` - (Optional, String) The priority of the alert definition.

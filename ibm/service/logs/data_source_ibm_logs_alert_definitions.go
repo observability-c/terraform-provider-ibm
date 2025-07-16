@@ -1983,7 +1983,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionLogsImmediateTypeToMap(
 		}
 		modelMap["logs_filter"] = []map[string]interface{}{logsFilterMap}
 	}
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	return modelMap, nil
 }
 
@@ -2072,7 +2074,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionLogsThresholdTypeToMap(
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.EvaluationDelayMs != nil {
 		modelMap["evaluation_delay_ms"] = flex.IntValue(model.EvaluationDelayMs)
 	}
@@ -2152,7 +2156,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionLogsRatioThresholdTypeT
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	modelMap["group_by_for"] = *model.GroupByFor
 	if model.UndetectedValuesManagement != nil {
 		undetectedValuesManagementMap, err := DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionUndetectedValuesManagementToMap(model.UndetectedValuesManagement)
@@ -2224,7 +2230,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionLogsTimeRelativeThresho
 	if model.IgnoreInfinity != nil {
 		modelMap["ignore_infinity"] = *model.IgnoreInfinity
 	}
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.UndetectedValuesManagement != nil {
 		undetectedValuesManagementMap, err := DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionUndetectedValuesManagementToMap(model.UndetectedValuesManagement)
 		if err != nil {
@@ -2487,7 +2495,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionLogsAnomalyTypeToMap(mo
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.EvaluationDelayMs != nil {
 		modelMap["evaluation_delay_ms"] = flex.IntValue(model.EvaluationDelayMs)
 	}
@@ -2604,7 +2614,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionLogsNewValueTypeToMap(m
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	return modelMap, nil
 }
 
@@ -2653,7 +2665,9 @@ func DataSourceIbmLogsAlertDefinitionsApisAlertDefinitionLogsUniqueCountTypeToMa
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.MaxUniqueCountPerGroupByKey != nil {
 		modelMap["max_unique_count_per_group_by_key"] = *model.MaxUniqueCountPerGroupByKey
 	}

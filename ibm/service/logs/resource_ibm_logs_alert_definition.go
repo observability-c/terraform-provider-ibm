@@ -166,7 +166,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 								Schema: map[string]*schema.Schema{
 									"notify_on": &schema.Schema{
 										Type:        schema.TypeString,
-										Required:    true,
+										Optional:    true,
 										Description: "The condition to notify about the alert.",
 									},
 									"integration": &schema.Schema{
@@ -300,7 +300,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 						},
 						"notification_payload_filter": &schema.Schema{
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: "The filter to specify which fields to include in the notification payload.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -477,7 +477,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 						},
 						"notification_payload_filter": &schema.Schema{
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: "The filter to specify which fields to include in the notification payload.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -730,7 +730,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 						},
 						"notification_payload_filter": &schema.Schema{
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: "The filter to specify which fields to include in the notification payload.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -916,7 +916,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 						},
 						"notification_payload_filter": &schema.Schema{
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: "The filter to specify which fields to include in the notification payload.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -1309,7 +1309,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 						},
 						"notification_payload_filter": &schema.Schema{
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: "The notification payload filter to specify which fields to include in the notification.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -1572,7 +1572,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 						},
 						"notification_payload_filter": &schema.Schema{
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: "The filter to specify which fields to include in the notification payload.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -1708,7 +1708,7 @@ func ResourceIbmLogsAlertDefinition() *schema.Resource {
 						},
 						"notification_payload_filter": &schema.Schema{
 							Type:        schema.TypeList,
-							Required:    true,
+							Optional:    true,
 							Description: "The filter to specify which fields to include in the notification payload.",
 							Elem:        &schema.Schema{Type: schema.TypeString},
 						},
@@ -1949,7 +1949,6 @@ func resourceIbmLogsAlertDefinitionRead(context context.Context, d *schema.Resou
 
 	if !core.IsNil(alertDefinition.Enabled) {
 		if err = d.Set("enabled", alertDefinition.Enabled); err != nil {
-			fmt.Println("what is enabled value here", alertDefinition.Enabled)
 			err = fmt.Errorf("Error setting enabled: %s", err)
 			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_alert_definition", "read", "set-enabled").GetDiag()
 		}
@@ -2253,7 +2252,7 @@ func resourceIbmLogsAlertDefinitionUpdate(context context.Context, d *schema.Res
 		}
 		convertedModel, err := ResourceIbmLogsAlertDefinitionMapToAlertDefinitionPrototype(bodyModelMap)
 		if err != nil {
-			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_alert_definition", "create", "parse-request-body").GetDiag()
+			return flex.DiscriminatedTerraformErrorf(err, err.Error(), "ibm_logs_alert_definition", "update", "parse-alert_definition_prototype").GetDiag()
 		}
 		replaceAlertDefOptions.AlertDefinitionPrototype = convertedModel
 		hasChange = true
@@ -2362,7 +2361,9 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionAlertDefNotificationG
 
 func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionAlertDefWebhooksSettings(modelMap map[string]interface{}) (*logsv0.ApisAlertDefinitionAlertDefWebhooksSettings, error) {
 	model := &logsv0.ApisAlertDefinitionAlertDefWebhooksSettings{}
-	model.NotifyOn = core.StringPtr(modelMap["notify_on"].(string))
+	if modelMap["notify_on"] != nil && modelMap["notify_on"].(string) != "" {
+		model.NotifyOn = core.StringPtr(modelMap["notify_on"].(string))
+	}
 	IntegrationModel, err := ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionIntegrationType(modelMap["integration"].([]interface{})[0].(map[string]interface{}))
 	if err != nil {
 		return model, err
@@ -2399,11 +2400,13 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionLogsImmediateType(mod
 		}
 		model.LogsFilter = LogsFilterModel
 	}
-	notificationPayloadFilter := []string{}
-	for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
-		notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+	if modelMap["notification_payload_filter"] != nil {
+		notificationPayloadFilter := []string{}
+		for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
+			notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+		}
+		model.NotificationPayloadFilter = notificationPayloadFilter
 	}
-	model.NotificationPayloadFilter = notificationPayloadFilter
 	return model, nil
 }
 
@@ -2496,11 +2499,13 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionLogsThresholdType(mod
 		rules = append(rules, *rulesItemModel)
 	}
 	model.Rules = rules
-	notificationPayloadFilter := []string{}
-	for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
-		notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+	if modelMap["notification_payload_filter"] != nil {
+		notificationPayloadFilter := []string{}
+		for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
+			notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+		}
+		model.NotificationPayloadFilter = notificationPayloadFilter
 	}
-	model.NotificationPayloadFilter = notificationPayloadFilter
 	if modelMap["evaluation_delay_ms"] != nil {
 		model.EvaluationDelayMs = core.Int64Ptr(int64(modelMap["evaluation_delay_ms"].(int)))
 	}
@@ -2580,11 +2585,13 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionLogsRatioThresholdTyp
 		rules = append(rules, *rulesItemModel)
 	}
 	model.Rules = rules
-	notificationPayloadFilter := []string{}
-	for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
-		notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+	if modelMap["notification_payload_filter"] != nil {
+		notificationPayloadFilter := []string{}
+		for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
+			notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+		}
+		model.NotificationPayloadFilter = notificationPayloadFilter
 	}
-	model.NotificationPayloadFilter = notificationPayloadFilter
 	model.GroupByFor = core.StringPtr(modelMap["group_by_for"].(string))
 	if modelMap["undetected_values_management"] != nil && len(modelMap["undetected_values_management"].([]interface{})) > 0 {
 		UndetectedValuesManagementModel, err := ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionUndetectedValuesManagement(modelMap["undetected_values_management"].([]interface{})[0].(map[string]interface{}))
@@ -2656,11 +2663,13 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionLogsTimeRelativeThres
 	if modelMap["ignore_infinity"] != nil {
 		model.IgnoreInfinity = core.BoolPtr(modelMap["ignore_infinity"].(bool))
 	}
-	notificationPayloadFilter := []string{}
-	for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
-		notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+	if modelMap["notification_payload_filter"] != nil {
+		notificationPayloadFilter := []string{}
+		for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
+			notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+		}
+		model.NotificationPayloadFilter = notificationPayloadFilter
 	}
-	model.NotificationPayloadFilter = notificationPayloadFilter
 	if modelMap["undetected_values_management"] != nil && len(modelMap["undetected_values_management"].([]interface{})) > 0 {
 		UndetectedValuesManagementModel, err := ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionUndetectedValuesManagement(modelMap["undetected_values_management"].([]interface{})[0].(map[string]interface{}))
 		if err != nil {
@@ -2905,11 +2914,13 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionLogsAnomalyType(model
 		rules = append(rules, *rulesItemModel)
 	}
 	model.Rules = rules
-	notificationPayloadFilter := []string{}
-	for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
-		notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+	if modelMap["notification_payload_filter"] != nil {
+		notificationPayloadFilter := []string{}
+		for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
+			notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+		}
+		model.NotificationPayloadFilter = notificationPayloadFilter
 	}
-	model.NotificationPayloadFilter = notificationPayloadFilter
 	if modelMap["evaluation_delay_ms"] != nil {
 		model.EvaluationDelayMs = core.Int64Ptr(int64(modelMap["evaluation_delay_ms"].(int)))
 	}
@@ -3026,11 +3037,13 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionLogsNewValueType(mode
 		rules = append(rules, *rulesItemModel)
 	}
 	model.Rules = rules
-	notificationPayloadFilter := []string{}
-	for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
-		notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+	if modelMap["notification_payload_filter"] != nil {
+		notificationPayloadFilter := []string{}
+		for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
+			notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+		}
+		model.NotificationPayloadFilter = notificationPayloadFilter
 	}
-	model.NotificationPayloadFilter = notificationPayloadFilter
 	return model, nil
 }
 
@@ -3079,11 +3092,13 @@ func ResourceIbmLogsAlertDefinitionMapToApisAlertDefinitionLogsUniqueCountType(m
 		rules = append(rules, *rulesItemModel)
 	}
 	model.Rules = rules
-	notificationPayloadFilter := []string{}
-	for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
-		notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+	if modelMap["notification_payload_filter"] != nil {
+		notificationPayloadFilter := []string{}
+		for _, notificationPayloadFilterItem := range modelMap["notification_payload_filter"].([]interface{}) {
+			notificationPayloadFilter = append(notificationPayloadFilter, notificationPayloadFilterItem.(string))
+		}
+		model.NotificationPayloadFilter = notificationPayloadFilter
 	}
-	model.NotificationPayloadFilter = notificationPayloadFilter
 	if modelMap["max_unique_count_per_group_by_key"] != nil && modelMap["max_unique_count_per_group_by_key"].(string) != "" {
 		model.MaxUniqueCountPerGroupByKey = core.StringPtr(modelMap["max_unique_count_per_group_by_key"].(string))
 	}
@@ -3919,7 +3934,9 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionLogsImmediateTypeToMap(mod
 		}
 		modelMap["logs_filter"] = []map[string]interface{}{logsFilterMap}
 	}
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	return modelMap, nil
 }
 
@@ -4008,7 +4025,9 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionLogsThresholdTypeToMap(mod
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.EvaluationDelayMs != nil {
 		modelMap["evaluation_delay_ms"] = flex.IntValue(model.EvaluationDelayMs)
 	}
@@ -4088,7 +4107,9 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionLogsRatioThresholdTypeToMa
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	modelMap["group_by_for"] = *model.GroupByFor
 	if model.UndetectedValuesManagement != nil {
 		undetectedValuesManagementMap, err := ResourceIbmLogsAlertDefinitionApisAlertDefinitionUndetectedValuesManagementToMap(model.UndetectedValuesManagement)
@@ -4160,7 +4181,9 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionLogsTimeRelativeThresholdT
 	if model.IgnoreInfinity != nil {
 		modelMap["ignore_infinity"] = *model.IgnoreInfinity
 	}
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.UndetectedValuesManagement != nil {
 		undetectedValuesManagementMap, err := ResourceIbmLogsAlertDefinitionApisAlertDefinitionUndetectedValuesManagementToMap(model.UndetectedValuesManagement)
 		if err != nil {
@@ -4423,7 +4446,9 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionLogsAnomalyTypeToMap(model
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.EvaluationDelayMs != nil {
 		modelMap["evaluation_delay_ms"] = flex.IntValue(model.EvaluationDelayMs)
 	}
@@ -4540,7 +4565,9 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionLogsNewValueTypeToMap(mode
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	return modelMap, nil
 }
 
@@ -4589,7 +4616,9 @@ func ResourceIbmLogsAlertDefinitionApisAlertDefinitionLogsUniqueCountTypeToMap(m
 		rules = append(rules, rulesItemMap)
 	}
 	modelMap["rules"] = rules
-	modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	if model.NotificationPayloadFilter != nil {
+		modelMap["notification_payload_filter"] = model.NotificationPayloadFilter
+	}
 	if model.MaxUniqueCountPerGroupByKey != nil {
 		modelMap["max_unique_count_per_group_by_key"] = *model.MaxUniqueCountPerGroupByKey
 	}
