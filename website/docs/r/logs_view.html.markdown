@@ -17,6 +17,8 @@ Create, update, and delete logs_views with this resource.
 resource "ibm_logs_view" "logs_view_instance" {
   instance_id = ibm_resource_instance.logs_instance.guid
   region      = ibm_resource_instance.logs_instance.location
+  instance_id = ibm_resource_instance.logs_instance.guid
+  region      = ibm_resource_instance.logs_instance.location
   name        = "example-view"
   filters {
     filters {
