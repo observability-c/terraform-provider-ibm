@@ -33,7 +33,7 @@ You can specify the following arguments for this data source.
 
 After your data source is created, you can read values from the following attributes.
 
-* `id` - The unique identifier of the logs_view.
+* `id` - The unique identifier of the logs_view. The ID is composed of `<region>/<instance_id>/<view_id>`.
 * `filters` - (List) View selected filters.
 Nested schema for **filters**:
 	* `filters` - (List) Selected filters.

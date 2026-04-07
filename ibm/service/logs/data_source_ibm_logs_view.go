@@ -1,4 +1,4 @@
-// Copyright IBM Corp. 2024 All Rights Reserved.
+// Copyright IBM Corp. 2026 All Rights Reserved.
 // Licensed under the Mozilla Public License v2.0
 
 package logs
@@ -6,6 +6,7 @@ package logs
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -21,6 +22,21 @@ func DataSourceIbmLogsView() *schema.Resource {
 		ReadContext: dataSourceIbmLogsViewRead,
 
 		Schema: map[string]*schema.Schema{
+			"instance_id": &schema.Schema{
+				Type: schema.TypeString,
+				Required: true,
+				Description: "The ID of the IBM Cloud Logs instance.",
+			},
+			"region": &schema.Schema{
+				Type: schema.TypeString,
+				Optional: true,
+				Description: "The region of the IBM Cloud Logs instance.",
+			},
+			"endpoint_type": &schema.Schema{
+				Type: schema.TypeString,
+				Optional: true,
+				Description: "public or private.",
+			},
 			"logs_view_id": &schema.Schema{
 				Type:        schema.TypeInt,
 				Required:    true,
@@ -41,6 +57,11 @@ func DataSourceIbmLogsView() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: "View search query.",
+						},
+						"syntax_type": &schema.Schema{
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: "Syntax type for the query used in views.",
 						},
 					},
 				},
@@ -65,7 +86,7 @@ func DataSourceIbmLogsView() *schema.Resource {
 									"seconds": &schema.Schema{
 										Type:        schema.TypeInt,
 										Computed:    true,
-										Description: "Quick time selection amount of seconds.",
+										Description: "Quick time selection amount in seconds.",
 									},
 								},
 							},
@@ -79,12 +100,12 @@ func DataSourceIbmLogsView() *schema.Resource {
 									"from_time": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Custom time selection start timestamp.",
+										Description: "Custom time selection starting timestamp.",
 									},
 									"to_time": &schema.Schema{
 										Type:        schema.TypeString,
 										Computed:    true,
-										Description: "Custom time selection end timestamp.",
+										Description: "Custom time selection ending timestamp.",
 									},
 								},
 							},
@@ -128,6 +149,11 @@ func DataSourceIbmLogsView() *schema.Resource {
 				Computed:    true,
 				Description: "View folder ID.",
 			},
+			"tier": &schema.Schema{
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: "Type of view.",
+			},
 		},
 	}
 }
@@ -135,10 +161,11 @@ func DataSourceIbmLogsView() *schema.Resource {
 func dataSourceIbmLogsViewRead(context context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	logsClient, err := meta.(conns.ClientSession).LogsV0()
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_logs_view", "read")
+		tfErr := flex.TerraformErrorf(err, err.Error(), "ibm_logs_view", "read")
 		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
 		return tfErr.GetDiag()
 	}
+
 	region := getLogsInstanceRegion(logsClient, d)
 	instanceId := d.Get("instance_id").(string)
 	logsClient, err = getClientWithLogsInstanceEndpoint(logsClient, meta, instanceId, region, getLogsInstanceEndpointType(logsClient, d))
@@ -150,93 +177,97 @@ func dataSourceIbmLogsViewRead(context context.Context, d *schema.ResourceData, 
 
 	getViewOptions.SetID(int64(d.Get("logs_view_id").(int)))
 
-	view, _, err := logsClient.GetViewWithContext(context, getViewOptions)
+	view, response, err := logsClient.GetViewWithContext(context, getViewOptions)
 	if err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("GetViewWithContext failed: %s", err.Error()), "(Data) ibm_logs_view", "read")
-		log.Printf("[DEBUG]\n%s", tfErr.GetDebugMessage())
-		return tfErr.GetDiag()
+		log.Printf("[DEBUG] GetViewWithContext failed %s\n%s", err, response)
+		return diag.FromErr(fmt.Errorf("GetViewWithContext failed %s\n%s", err, response))
 	}
 
-	d.SetId(fmt.Sprintf("%d", *getViewOptions.ID))
+	d.SetId(fmt.Sprintf("%s/%s/%s", region, instanceId, strconv.FormatInt(*getViewOptions.ID, 10)))
 
+	if err = d.Set("instance_id", instanceId); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting instance_id: %s", err))
+	}
+	if err = d.Set("region", region); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting region: %s", err))
+	}
 	if err = d.Set("name", view.Name); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting name: %s", err), "(Data) ibm_logs_view", "read")
-		return tfErr.GetDiag()
+		return diag.FromErr(fmt.Errorf("Error setting name: %s", err))
 	}
 
 	searchQuery := []map[string]interface{}{}
 	if view.SearchQuery != nil {
-		modelMap, err := DataSourceIbmLogsViewApisViewsV1SearchQueryToMap(view.SearchQuery)
+		modelMap, err := dataSourceIbmLogsViewApisViewsV1SearchQueryToMap(view.SearchQuery)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_logs_view", "read")
-			return tfErr.GetDiag()
+			return diag.FromErr(err)
 		}
 		searchQuery = append(searchQuery, modelMap)
 	}
 	if err = d.Set("search_query", searchQuery); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting search_query: %s", err), "(Data) ibm_logs_view", "read")
-		return tfErr.GetDiag()
+		return diag.FromErr(fmt.Errorf("Error setting search_query %s", err))
 	}
 
 	timeSelection := []map[string]interface{}{}
 	if view.TimeSelection != nil {
-		modelMap, err := DataSourceIbmLogsViewApisViewsV1TimeSelectionToMap(view.TimeSelection)
+		modelMap, err := dataSourceIbmLogsViewApisViewsV1TimeSelectionToMap(view.TimeSelection)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_logs_view", "read")
-			return tfErr.GetDiag()
+			return diag.FromErr(err)
 		}
 		timeSelection = append(timeSelection, modelMap)
 	}
 	if err = d.Set("time_selection", timeSelection); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting time_selection: %s", err), "(Data) ibm_logs_view", "read")
-		return tfErr.GetDiag()
+		return diag.FromErr(fmt.Errorf("Error setting time_selection %s", err))
 	}
 
 	filters := []map[string]interface{}{}
 	if view.Filters != nil {
-		modelMap, err := DataSourceIbmLogsViewApisViewsV1SelectedFiltersToMap(view.Filters)
+		modelMap, err := dataSourceIbmLogsViewApisViewsV1SelectedFiltersToMap(view.Filters)
 		if err != nil {
-			tfErr := flex.TerraformErrorf(err, err.Error(), "(Data) ibm_logs_view", "read")
-			return tfErr.GetDiag()
+			return diag.FromErr(err)
 		}
 		filters = append(filters, modelMap)
 	}
 	if err = d.Set("filters", filters); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting filters: %s", err), "(Data) ibm_logs_view", "read")
-		return tfErr.GetDiag()
+		return diag.FromErr(fmt.Errorf("Error setting filters %s", err))
 	}
 
 	if err = d.Set("folder_id", view.FolderID); err != nil {
-		tfErr := flex.TerraformErrorf(err, fmt.Sprintf("Error setting folder_id: %s", err), "(Data) ibm_logs_view", "read")
-		return tfErr.GetDiag()
+		return diag.FromErr(fmt.Errorf("Error setting folder_id: %s", err))
+	}
+
+	if err = d.Set("tier", view.Tier); err != nil {
+		return diag.FromErr(fmt.Errorf("Error setting tier: %s", err))
 	}
 
 	return nil
 }
 
-func DataSourceIbmLogsViewApisViewsV1SearchQueryToMap(model *logsv0.ApisViewsV1SearchQuery) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1SearchQueryToMap(model *logsv0.ApisViewsV1SearchQuery) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["query"] = *model.Query
+	if model.SyntaxType != nil {
+		modelMap["syntax_type"] = *model.SyntaxType
+	}
 	return modelMap, nil
 }
 
-func DataSourceIbmLogsViewApisViewsV1TimeSelectionToMap(model logsv0.ApisViewsV1TimeSelectionIntf) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1TimeSelectionToMap(model logsv0.ApisViewsV1TimeSelectionIntf) (map[string]interface{}, error) {
 	if _, ok := model.(*logsv0.ApisViewsV1TimeSelectionSelectionTypeQuickSelection); ok {
-		return DataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeQuickSelectionToMap(model.(*logsv0.ApisViewsV1TimeSelectionSelectionTypeQuickSelection))
+		return dataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeQuickSelectionToMap(model.(*logsv0.ApisViewsV1TimeSelectionSelectionTypeQuickSelection))
 	} else if _, ok := model.(*logsv0.ApisViewsV1TimeSelectionSelectionTypeCustomSelection); ok {
-		return DataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeCustomSelectionToMap(model.(*logsv0.ApisViewsV1TimeSelectionSelectionTypeCustomSelection))
+		return dataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeCustomSelectionToMap(model.(*logsv0.ApisViewsV1TimeSelectionSelectionTypeCustomSelection))
 	} else if _, ok := model.(*logsv0.ApisViewsV1TimeSelection); ok {
 		modelMap := make(map[string]interface{})
 		model := model.(*logsv0.ApisViewsV1TimeSelection)
 		if model.QuickSelection != nil {
-			quickSelectionMap, err := DataSourceIbmLogsViewApisViewsV1QuickTimeSelectionToMap(model.QuickSelection)
+			quickSelectionMap, err := dataSourceIbmLogsViewApisViewsV1QuickTimeSelectionToMap(model.QuickSelection)
 			if err != nil {
 				return modelMap, err
 			}
 			modelMap["quick_selection"] = []map[string]interface{}{quickSelectionMap}
 		}
 		if model.CustomSelection != nil {
-			customSelectionMap, err := DataSourceIbmLogsViewApisViewsV1CustomTimeSelectionToMap(model.CustomSelection)
+			customSelectionMap, err := dataSourceIbmLogsViewApisViewsV1CustomTimeSelectionToMap(model.CustomSelection)
 			if err != nil {
 				return modelMap, err
 			}
@@ -248,24 +279,24 @@ func DataSourceIbmLogsViewApisViewsV1TimeSelectionToMap(model logsv0.ApisViewsV1
 	}
 }
 
-func DataSourceIbmLogsViewApisViewsV1QuickTimeSelectionToMap(model *logsv0.ApisViewsV1QuickTimeSelection) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1QuickTimeSelectionToMap(model *logsv0.ApisViewsV1QuickTimeSelection) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["caption"] = *model.Caption
 	modelMap["seconds"] = flex.IntValue(model.Seconds)
 	return modelMap, nil
 }
 
-func DataSourceIbmLogsViewApisViewsV1CustomTimeSelectionToMap(model *logsv0.ApisViewsV1CustomTimeSelection) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1CustomTimeSelectionToMap(model *logsv0.ApisViewsV1CustomTimeSelection) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["from_time"] = model.FromTime.String()
 	modelMap["to_time"] = model.ToTime.String()
 	return modelMap, nil
 }
 
-func DataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeQuickSelectionToMap(model *logsv0.ApisViewsV1TimeSelectionSelectionTypeQuickSelection) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeQuickSelectionToMap(model *logsv0.ApisViewsV1TimeSelectionSelectionTypeQuickSelection) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.QuickSelection != nil {
-		quickSelectionMap, err := DataSourceIbmLogsViewApisViewsV1QuickTimeSelectionToMap(model.QuickSelection)
+		quickSelectionMap, err := dataSourceIbmLogsViewApisViewsV1QuickTimeSelectionToMap(model.QuickSelection)
 		if err != nil {
 			return modelMap, err
 		}
@@ -274,10 +305,10 @@ func DataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeQuickSelectionToM
 	return modelMap, nil
 }
 
-func DataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeCustomSelectionToMap(model *logsv0.ApisViewsV1TimeSelectionSelectionTypeCustomSelection) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeCustomSelectionToMap(model *logsv0.ApisViewsV1TimeSelectionSelectionTypeCustomSelection) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.CustomSelection != nil {
-		customSelectionMap, err := DataSourceIbmLogsViewApisViewsV1CustomTimeSelectionToMap(model.CustomSelection)
+		customSelectionMap, err := dataSourceIbmLogsViewApisViewsV1CustomTimeSelectionToMap(model.CustomSelection)
 		if err != nil {
 			return modelMap, err
 		}
@@ -286,12 +317,12 @@ func DataSourceIbmLogsViewApisViewsV1TimeSelectionSelectionTypeCustomSelectionTo
 	return modelMap, nil
 }
 
-func DataSourceIbmLogsViewApisViewsV1SelectedFiltersToMap(model *logsv0.ApisViewsV1SelectedFilters) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1SelectedFiltersToMap(model *logsv0.ApisViewsV1SelectedFilters) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	if model.Filters != nil {
 		filters := []map[string]interface{}{}
 		for _, filtersItem := range model.Filters {
-			filtersItemMap, err := DataSourceIbmLogsViewApisViewsV1FilterToMap(&filtersItem)
+			filtersItemMap, err := dataSourceIbmLogsViewApisViewsV1FilterToMap(&filtersItem)
 			if err != nil {
 				return modelMap, err
 			}
@@ -302,13 +333,15 @@ func DataSourceIbmLogsViewApisViewsV1SelectedFiltersToMap(model *logsv0.ApisView
 	return modelMap, nil
 }
 
-func DataSourceIbmLogsViewApisViewsV1FilterToMap(model *logsv0.ApisViewsV1Filter) (map[string]interface{}, error) {
+func dataSourceIbmLogsViewApisViewsV1FilterToMap(model *logsv0.ApisViewsV1Filter) (map[string]interface{}, error) {
 	modelMap := make(map[string]interface{})
 	modelMap["name"] = *model.Name
-	selectedValues := make(map[string]interface{})
-	for k, v := range model.SelectedValues {
-		selectedValues[k] = flex.Stringify(v)
+	if model.SelectedValues != nil {
+		selectedValues := make(map[string]interface{})
+		for k, v := range model.SelectedValues {
+			selectedValues[k] = fmt.Sprintf("%t", v)
+		}
+		modelMap["selected_values"] = selectedValues
 	}
-	modelMap["selected_values"] = selectedValues
 	return modelMap, nil
 }
